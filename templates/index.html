@@ -1,0 +1,307 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>TaskFlow | Gerenciador de tarefas</title>
+    <meta name="description"
+          content="Aplicação para organizar tarefas, acompanhar prazos e gerenciar atividades.">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+          rel="stylesheet">
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+    <script src="{{ url_for('static', filename='script.js') }}" defer></script>
+</head>
+
+<body>
+<div class="app-shell">
+    <aside class="sidebar">
+        <a href="/" class="brand">
+            <span class="brand-mark">
+                <i class="bi bi-check2-square"></i>
+            </span>
+            <span>
+                <strong>TaskFlow</strong>
+                <small>Gerenciador de tarefas</small>
+            </span>
+        </a>
+
+        <p class="sidebar-heading">VISÃO GERAL</p>
+
+        <button class="nav-link-custom active" data-filter="all">
+            <i class="bi bi-grid"></i>
+            Todas as tarefas
+        </button>
+        <button class="nav-link-custom" data-filter="pending">
+            <i class="bi bi-clock"></i>
+            Pendentes
+        </button>
+        <button class="nav-link-custom" data-filter="done">
+            <i class="bi bi-check-circle"></i>
+            Concluídas
+        </button>
+
+        <p class="sidebar-heading mt-4">CATEGORIAS</p>
+
+        <button class="nav-link-custom" data-category="Trabalho">
+            <span class="category-dot dot-blue"></span> Trabalho
+        </button>
+        <button class="nav-link-custom" data-category="Estudos">
+            <span class="category-dot dot-green"></span> Estudos
+        </button>
+        <button class="nav-link-custom" data-category="Pessoal">
+            <span class="category-dot dot-orange"></span> Pessoal
+        </button>
+        <button class="nav-link-custom" data-category="Outros">
+            <span class="category-dot dot-purple"></span> Outros
+        </button>
+
+        <div class="sidebar-footer">
+            <span>TaskFlow</span>
+            <small>Organização pessoal</small>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="page-header">
+            <div>
+                <p class="overline">PAINEL DE CONTROLE</p>
+                <h1>Minhas tarefas</h1>
+                <p class="page-description">
+                    Organize suas atividades e acompanhe seu progresso.
+                </p>
+            </div>
+
+            <button id="themeToggle" class="btn btn-outline-secondary theme-button"
+                    type="button" aria-label="Alternar tema">
+                <i class="bi bi-moon"></i>
+            </button>
+        </header>
+
+        <section class="row g-3 mb-4" aria-label="Resumo das tarefas">
+            <div class="col-md-4">
+                <article class="summary-card summary-blue">
+                    <span>Total de tarefas</span>
+                    <i class="bi bi-list-task"></i>
+                    <strong id="totalCount">0</strong>
+                </article>
+            </div>
+            <div class="col-md-4">
+                <article class="summary-card summary-green">
+                    <span>Concluídas</span>
+                    <i class="bi bi-check-circle"></i>
+                    <strong id="doneCount">0</strong>
+                </article>
+            </div>
+            <div class="col-md-4">
+                <article class="summary-card summary-orange">
+                    <span>Pendentes</span>
+                    <i class="bi bi-hourglass-split"></i>
+                    <strong id="pendingCount">0</strong>
+                </article>
+            </div>
+        </section>
+
+        <section class="panel progress-panel mb-4">
+            <div class="d-flex justify-content-between align-items-center gap-3">
+                <div>
+                    <h2>Progresso geral</h2>
+                    <p class="muted mb-0">Percentual de tarefas concluídas</p>
+                </div>
+                <strong id="progressText" class="progress-number">0%</strong>
+            </div>
+
+            <div class="progress mt-3" role="progressbar"
+                 aria-label="Progresso das tarefas"
+                 aria-valuemin="0" aria-valuemax="100"
+                 aria-valuenow="0" id="progressContainer">
+                <div id="progressBar" class="progress-bar" style="width: 0%"></div>
+            </div>
+        </section>
+
+        <section class="panel">
+            <div class="section-header">
+                <div>
+                    <h2>Lista de atividades</h2>
+                    <p class="muted mb-0">Cadastre e gerencie suas tarefas.</p>
+                </div>
+                <span class="task-count" id="visibleCount">0 tarefas</span>
+            </div>
+
+            <form action="{{ url_for('adicionar') }}" method="POST"
+                  class="task-form" id="addForm">
+                <div class="row g-2">
+                    <div class="col-lg-5">
+                        <label class="form-label" for="taskDescription">
+                            Descrição
+                        </label>
+                        <input id="taskDescription" type="text"
+                               class="form-control" name="descricao"
+                               placeholder="Ex.: Estudar Python"
+                               maxlength="200" required>
+                    </div>
+
+                    <div class="col-sm-6 col-lg-2">
+                        <label class="form-label" for="taskCategory">
+                            Categoria
+                        </label>
+                        <select id="taskCategory" name="categoria"
+                                class="form-select">
+                            <option value="Trabalho">Trabalho</option>
+                            <option value="Estudos">Estudos</option>
+                            <option value="Pessoal">Pessoal</option>
+                            <option value="Outros">Outros</option>
+                        </select>
+                    </div>
+
+                    <div class="col-sm-6 col-lg-2">
+                        <label class="form-label" for="taskDue">Prazo</label>
+                        <input id="taskDue" type="date" name="prazo"
+                               class="form-control">
+                    </div>
+
+                    <div class="col-lg-3 d-flex align-items-end">
+                        <button class="btn btn-primary w-100" type="submit">
+                            <i class="bi bi-plus-lg me-1"></i>
+                            Adicionar tarefa
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            <div class="list-toolbar">
+                <div class="filter-group">
+                    <button class="filter-button selected" data-filter="all">
+                        Todas
+                    </button>
+                    <button class="filter-button" data-filter="pending">
+                        Pendentes
+                    </button>
+                    <button class="filter-button" data-filter="done">
+                        Concluídas
+                    </button>
+                </div>
+
+                <div class="search-box">
+                    <i class="bi bi-search"></i>
+                    <input type="search" id="searchInput"
+                           placeholder="Buscar tarefa..."
+                           aria-label="Buscar tarefa">
+                </div>
+            </div>
+
+            <div class="task-list" id="taskList">
+                {% for tarefa in tarefas %}
+                <article
+                    class="task-item {% if tarefa['concluida'] %}is-done{% endif %}"
+                    data-status="{{ 'done' if tarefa['concluida'] else 'pending' }}"
+                    data-category="{{ tarefa['categoria'] }}"
+                    data-description="{{ tarefa['descricao']|lower }}">
+
+                    <form action="{{ url_for('concluir', id=tarefa['id']) }}"
+                          method="POST" class="complete-form">
+                        <button type="submit" class="complete-button"
+                                aria-label="Alternar conclusão">
+                            {% if tarefa['concluida'] %}
+                                <i class="bi bi-check-lg"></i>
+                            {% endif %}
+                        </button>
+                    </form>
+
+                    <div class="task-details">
+                        <span class="task-title">{{ tarefa['descricao'] }}</span>
+                        <div class="task-meta">
+                            <span class="category-label category-{{ tarefa['categoria']|lower }}">
+                                {{ tarefa['categoria'] }}
+                            </span>
+                            <span class="task-date">
+                                {% if tarefa['prazo'] %}
+                                    <i class="bi bi-calendar3"></i>
+                                    {{ tarefa['prazo'] }}
+                                {% else %}
+                                    Sem prazo definido
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="task-actions">
+                        <button type="button" class="icon-button edit-button"
+                                data-id="{{ tarefa['id'] }}"
+                                data-description="{{ tarefa['descricao'] }}"
+                                data-category="{{ tarefa['categoria'] }}"
+                                data-due="{{ tarefa['prazo'] or '' }}"
+                                aria-label="Editar tarefa">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+
+                        <form action="{{ url_for('excluir', id=tarefa['id']) }}"
+                              method="POST" class="delete-form">
+                            <button type="submit"
+                                    class="icon-button delete-button"
+                                    aria-label="Excluir tarefa">
+                                <i class="bi bi-trash3"></i>
+                            </button>
+                        </form>
+                    </div>
+                </article>
+                {% endfor %}
+            </div>
+
+            <div id="emptyState" class="empty-state" hidden>
+                <i class="bi bi-clipboard-check"></i>
+                <h3>Nenhuma tarefa encontrada</h3>
+                <p>Adicione uma atividade ou altere os filtros da lista.</p>
+            </div>
+        </section>
+
+        <footer class="page-footer">
+            TaskFlow · Projeto de estudos em Python e desenvolvimento web
+        </footer>
+    </main>
+</div>
+
+<dialog id="editDialog" class="edit-dialog">
+    <form id="editForm" method="POST">
+        <div class="dialog-heading">
+            <h2>Editar tarefa</h2>
+            <button type="button" id="cancelEdit"
+                    class="icon-button" aria-label="Fechar">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+
+        <label class="form-label" for="editDescription">Descrição</label>
+        <input id="editDescription" name="descricao"
+               class="form-control" maxlength="200" required>
+
+        <label class="form-label mt-3" for="editCategory">Categoria</label>
+        <select id="editCategory" name="categoria" class="form-select">
+            <option>Trabalho</option>
+            <option>Estudos</option>
+            <option>Pessoal</option>
+            <option>Outros</option>
+        </select>
+
+        <label class="form-label mt-3" for="editDue">Prazo</label>
+        <input id="editDue" type="date" name="prazo" class="form-control">
+
+        <div class="dialog-actions">
+            <button type="button" id="cancelEditSecondary"
+                    class="btn btn-light">Cancelar</button>
+            <button type="submit" class="btn btn-primary">
+                Salvar alterações
+            </button>
+        </div>
+    </form>
+</dialog>
+
+</body>
+</html>
+
