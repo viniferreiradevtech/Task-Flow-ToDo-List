@@ -15,7 +15,7 @@ TaskFlow é Um gerenciador de tarefas simples que eu montei pra praticar Python 
 - Confirmação antes de excluir
 - Layout responsivo
 
-No frontend: HTML, CSS e JavaScript puro, com Bootstrap 5 e Bootstrap Icons pra deixar a interface mais limpa.Como rodarVocê precisa ter o Python instalado (de preferência a partir da versão 3.10).
+No frontend: HTML, CSS e JavaScript puro, com Bootstrap 5 e Bootstrap Icons pra deixar a interface mais limpa.Como rodar:Você precisa ter o Python instalado (de preferência a partir da versão 3.10).
 Clone o repositório
 Entre na pasta do projeto
 (Opcional) Crie um ambiente virtual
